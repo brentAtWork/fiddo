@@ -11,9 +11,14 @@ type Commit struct {
 	Id, Url string
 }
 
+type repo struct {
+	Id, Name string
+}
+
 type body_struct struct {
 	Ref string
 	Commits []Commit
+	Repository repo
 }
 
 func main() {
@@ -29,6 +34,7 @@ func webhook(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 	defer r.Body.Close()
-	log.Println("Ref be like: " + body.Ref)
+	log.Printf("Ref be like: %v", body.Ref)
 	log.Printf("Commits be like: %v", body.Commits)
+	log.Printf("Repo be like: %v", body.Repository)
 }
