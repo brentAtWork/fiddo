@@ -12,7 +12,8 @@ type Commit struct {
 }
 
 type repo struct {
-	Id, Name string
+	Id int64
+	Name string
 }
 
 type body_struct struct {
