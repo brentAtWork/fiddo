@@ -19,7 +19,6 @@ type repo struct {
 }
 
 type body_struct struct {
-	Ref string				`json:"ref"`
 	HeadCommit HeadCommit 	`json:"head_commit"`
 	Repo repo 				`json:"repository"`
 }
@@ -27,6 +26,7 @@ type body_struct struct {
 var scriptRoot = "/var/fiddoScripts/"
 
 func main() {
+	log.Printf("Fiddo listening on port: %d", 5000)
 	if (len(os.Args) > 1 && os.Args[1] != "") {
 		scriptRoot = os.Args[1]
 	}
@@ -45,21 +45,18 @@ func webhook(w http.ResponseWriter, r *http.Request) {
 
 	fullPathScript := scriptRoot + body.Repo.Name + ".sh"
 
-	go executeFiddoScript(fullPathScript, body.HeadCommit.Url)
-
-	log.Printf("Ref be like: %v", body.Ref)
-	log.Printf("Commit be like: %v", body.HeadCommit)
-	log.Printf("Repo be like: %v", body.Repo)
+	go executeFiddoScript(fullPathScript, body.HeadCommit.Id)
 }
 
-func executeFiddoScript(scriptName string, url string) {
+func executeFiddoScript(scriptName string, id string) {
 	if _, err := os.Stat(scriptName); os.IsNotExist(err) {
 		log.Printf("Script not found: %v", scriptName)
 		return
 	}
-	err := exec.Command(scriptName, url).Run()
+	log.Printf("Running this: %s %s", scriptName, id)
+	err := exec.Command(scriptName, id).Run()
 	if exitErr, ok := err.(*exec.ExitError); ok {
-		log.Printf("Script exited with error: %v", exitErr.Stderr)
+		log.Printf("Script exited with error: %v", exitErr)
 		return
 	} else if err != nil {
 		panic(err)
